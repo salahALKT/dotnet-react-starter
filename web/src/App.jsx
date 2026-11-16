@@ -1,9 +1,8 @@
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from "react-router"
+import { createBrowserRouter, RouterProvider, Navigate, Outlet, redirect } from "react-router"
 import MainLayout from "./Components/MainLayout"
 import HomePage from "./Pages/HomePage"
 import LoginPage from "./Pages/LoginPage"
 import { AuthProvider, useAuth } from "./Contexts/AuthContext"
-import { useEffect } from "react"
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth()
@@ -32,13 +31,22 @@ const router = createBrowserRouter([
             index: true,
             Component: HomePage,
             loader: async () => {
+              // Loaders run before ProtectedRoute renders, so check for a token here too:
+              // without this, a first visit showed an error page instead of the login form.
+              const token = localStorage.getItem("token")
+              if (!token) {
+                return redirect("/login")
+              }
               const response = await fetch("/api/todos", {
                 method: "GET",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  Authorization: `Bearer ${token}`,
                 },
               })
+              if (response.status === 401) {
+                return redirect("/login")
+              }
               if (!response.ok) {
                 throw new Error("Failed to fetch todos")
               }
@@ -67,7 +75,6 @@ const router = createBrowserRouter([
                 const description = formData.get("description")
                 const isComplete = formData.get("isComplete")
                 const todoId = formData.get("todoId")
-                console.log(title)
                 const updateData = {}
                 if (title !== null) updateData.title = title
                 if (description !== null) updateData.description = description

@@ -23,8 +23,8 @@ public class DbSeeder
             {
                 var user = new User
                 {
-                    UserName = "admin@gmail.com",
-                    Email = "admin@gmail.com",
+                    UserName = "admin@example.com",
+                    Email = "admin@example.com",
                     EmailConfirmed = true,
                     SecurityStamp = Guid.NewGuid().ToString()
                 };

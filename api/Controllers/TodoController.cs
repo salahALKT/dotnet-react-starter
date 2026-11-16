@@ -45,6 +45,11 @@ namespace TodoApi.Controllers
             {
                 return NotFound();
             }
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity!.Name);
+            if (todo.UserId != currentUser!.Id) // users can only see their own todos
+            {
+                return Forbid();
+            }
             return Ok(todo);
         }
 
@@ -81,13 +86,9 @@ namespace TodoApi.Controllers
             todo.Title = updateTodoDTO.Title ?? todo.Title;
             todo.Description = updateTodoDTO.Description ?? todo.Description;
             todo.IsComplete = updateTodoDTO.IsComplete ?? todo.IsComplete;
-            if (updateTodoDTO.IsComplete == true)
+            if (updateTodoDTO.IsComplete.HasValue) // leave CompletedAt alone when only the title or description changes
             {
-                todo.CompletedAt = DateTime.UtcNow;
-            }
-            else
-            {
-                todo.CompletedAt = null;
+                todo.CompletedAt = updateTodoDTO.IsComplete.Value ? DateTime.UtcNow : null;
             }
             await _context.SaveChangesAsync();
             return NoContent();

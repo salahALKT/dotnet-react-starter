@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Common;
 using TodoApi.Models;
 
 namespace TodoApi.Data;

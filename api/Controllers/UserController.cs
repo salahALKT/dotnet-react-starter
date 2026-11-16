@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TodoApi.Data;
 using TodoApi.Models;
+using TodoApi.Models.DTOs;
 
 namespace TodoApi.Controllers
 {
@@ -25,13 +26,13 @@ namespace TodoApi.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var userId = _context.Users.FirstOrDefault(u => u.UserName == User.Identity!.Name)?.Id;
-            var user = await _userManager.FindByIdAsync(userId!);
+            var user = await _userManager.FindByNameAsync(User.Identity!.Name!);
             if (user == null)
             {
                 return NotFound();
             }
-            return Ok(user);
+            // Return a DTO, never the Identity entity itself: it contains the password hash and security stamp.
+            return Ok(new UserDTO { UserName = user.UserName!, Email = user.Email! });
         }
     }
 }

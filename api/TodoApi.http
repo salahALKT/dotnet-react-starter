@@ -1,47 +1,56 @@
-@TodoApi_HostAddress = http://localhost:5136
+# Example requests for the REST Client extension (VS Code) or Visual Studio.
+# Run "login" first: the other requests reuse its access token.
 
-GET {{TodoApi_HostAddress}}/api/todos
-Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsImp0aSI6IjdlYTM2Mzg4LWVmYjEtNDAzZS1hOGY5LTdlNmY1ODY5ZDM5MCIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0NjM2NjAxNiwiZXhwIjoxNzQ2MzY2OTE2LCJpYXQiOjE3NDYzNjYwMTYsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUxMzYiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MTM2In0.VC5XYWP7PVMQEdwpafoNEIb4sgM_XL7Z74RwyebYmyw
+@host = http://localhost:5136
 
-###
-POST {{TodoApi_HostAddress}}/api/Auth/token/revoke
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsImp0aSI6IjZhMjBkN2ExLTFiMzMtNDk5ZS05ZTEzLWM4ZTIwMjlhNWVmYSIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0NTc1OTU0OSwiZXhwIjoxNzQ1NzYwNDQ5LCJpYXQiOjE3NDU3NTk1NDksImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUxMzYiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MTM2In0.pj10Ic7-LK3p2fAyC3_mCk9DLYai7nPJ5v2FGiT8_X0
-
-###
-POST {{TodoApi_HostAddress}}/api/Auth/login
+# @name login
+POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "userName": "admin@gmail.com",
+  "userName": "admin@example.com",
   "password": "Admin@123"
 }
 
 ###
-POST {{TodoApi_HostAddress}}/api/todos
+@token = {{login.response.body.$.accessToken}}
+
+GET {{host}}/api/users/me
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/todos
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/todos
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsImp0aSI6IjIzMTU5Y2U2LTBlYTYtNGY1Ny04ODZiLTFkNzc3ZDNhOTQ3MCIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0NjM2NzY5MiwiZXhwIjoxNzQ2MzY4NTkyLCJpYXQiOjE3NDYzNjc2OTIsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUxMzYiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MTM2In0.hcc56u7hHvdreTqTAcANaKS_QmHiEiL946a-2vQOdFU
+Authorization: Bearer {{token}}
 
 {
-  "title": "Todo 4",
-  "description": "Todo 1 omgomg"
+  "title": "Write the README",
+  "description": "Explain how to run the API and the frontend"
 }
 
 ###
-DELETE  {{TodoApi_HostAddress}}/api/todos/1
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsImp0aSI6IjQyNWU0NGUyLTgyMjEtNDBlOS05NDRmLWQwN2ZjNTg4NWZiOSIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0NTc2MjgwNiwiZXhwIjoxNzQ1NzYzNzA2LCJpYXQiOjE3NDU3NjI4MDYsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUxMzYiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MTM2In0.R90tzzpIJBtbpjD4DdgvNzkyXN7VRmGYs5Rf7rlEOds
-
-###
-PUT {{TodoApi_HostAddress}}/api/todos/2
+PUT {{host}}/api/todos/1
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsImp0aSI6IjdlYTM2Mzg4LWVmYjEtNDAzZS1hOGY5LTdlNmY1ODY5ZDM5MCIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0NjM2NjAxNiwiZXhwIjoxNzQ2MzY2OTE2LCJpYXQiOjE3NDYzNjYwMTYsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUxMzYiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MTM2In0.VC5XYWP7PVMQEdwpafoNEIb4sgM_XL7Z74RwyebYmyw
+Authorization: Bearer {{token}}
 
 {
-  "title": "Todo 1 updated again 2",
-  "description": "Todo 1 description updated again 2",
   "isComplete": true
 }
 
 ###
-GET {{TodoApi_HostAddress}}/api/users/me 
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsImp0aSI6IjdlYTM2Mzg4LWVmYjEtNDAzZS1hOGY5LTdlNmY1ODY5ZDM5MCIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0NjM2NjAxNiwiZXhwIjoxNzQ2MzY2OTE2LCJpYXQiOjE3NDYzNjYwMTYsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUxMzYiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MTM2In0.VC5XYWP7PVMQEdwpafoNEIb4sgM_XL7Z74RwyebYmyw
+DELETE {{host}}/api/todos/1
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "userName": "jane@example.com",
+  "email": "jane@example.com",
+  "password": "Passw0rd!"
+}

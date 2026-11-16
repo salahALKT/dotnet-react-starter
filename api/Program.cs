@@ -10,6 +10,16 @@ using TodoApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// The key that signs the JWTs. Keep it out of appsettings.json: use user-secrets in development
+// (dotnet user-secrets set "JWT:Secret" "...") or the JWT__Secret environment variable.
+var jwtSecret = builder.Configuration["JWT:Secret"];
+if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
+{
+    throw new InvalidOperationException(
+        "JWT:Secret is missing or shorter than 32 characters. Set it with " +
+        "`dotnet user-secrets set \"JWT:Secret\" \"<a long random string>\"` or the JWT__Secret environment variable.");
+}
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -42,7 +52,7 @@ builder.Services.AddAuthentication(options =>
              ValidAudience = builder.Configuration["JWT:ValidAudience"],
              ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
              ClockSkew = TimeSpan.Zero,
-             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]!))
+             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
          };
      }
     ); 
@@ -80,6 +90,13 @@ app.UseAuthorization();
 app.UseCors();
 
 app.MapControllers();
+
+// In development, create or update the database schema at startup so that `dotnet run` is enough.
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<ApplicationDBContext>().Database.Migrate();
+}
 
 await DbSeeder.SeedData(app);
 
